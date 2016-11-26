@@ -19,10 +19,10 @@ class Cola:
         """
 
         if self.tipo == 'aplastador':
-            if camion.tamaño == 50:
+            if camion.capacidad == 50:
                 # Agregar el camion al principio de la cola, si hay otros hacerlo de forma FIFO
 
-                indice = self._obtener_indice_ultima_ocurrencia(camion.tamaño)
+                indice = self._obtener_indice_ultima_ocurrencia(camion.capacidad)
 
                 if indice:
                     self.cola.insert(indice + 1, camion)
@@ -33,16 +33,16 @@ class Cola:
         else:
             self.cola.append(camion)
 
-    def _obtener_indice_ultima_ocurrencia(self, tamaño):
+    def _obtener_indice_ultima_ocurrencia(self, capacidad):
         """
         Busca el indice de la ultima ocurrencia de un camion del tamaño ingresado en la cola
         Si no encuentra el indice devuelve None
 
-        :param tamaño: '20tn' o '50tn'
+        :param capacidad: '20tn' o '50tn'
         :return ultimoindice: int
         """
         ultimoindice = None
         for i in range(len(self.cola)):
-            if self.cola[i].tamaño == tamaño:
+            if self.cola[i].capacidad == capacidad:
                 ultimoindice = i
         return ultimoindice

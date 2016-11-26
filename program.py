@@ -2,6 +2,8 @@ from Cola import Cola
 from Camion import Camion
 
 INFINITO = 99999999
+PROB_DESCOMPOSICION = 0.1
+
 
 class Simulacion:
 
@@ -18,13 +20,26 @@ class Simulacion:
 
         self.reportes()
 
-    def arribo_pala(self, nro_pala):
-        # TODO Implement
-        PLACEHOLDER = 0
-
     def partida_pala(self, nro_pala):
-        # TODO Implement
-        PLACEHOLDER = 0
+        # TODO Generar variable aleatoria
+        numero_aleatorio = 0
+
+        if numero_aleatorio < PROB_DESCOMPOSICION:
+            camion = self.estado_pala
+            camion.accion_despues_descompostura = 'arribo_aplastador'
+            self.descompostura(camion)
+        else:
+            # TODO Generar arribo aplastador
+            PLACEHOLDER = 0
+
+        # Si hay camiones en la cola de la pala nro_pala
+        cola_pala = self.colas_pala[nro_pala]
+        if cola_pala.cola:
+            camion = cola_pala.cola.pop(0)
+            # TODO Generar partida pala
+            self.estado_pala = camion
+        else:
+            self.estado_pala = None
 
     def arribo_aplastador(self):
         # TODO Implement
@@ -34,7 +49,11 @@ class Simulacion:
         # TODO Implement
         PLACEHOLDER = 0
 
-    def descompostura(self):
+    def arribo_pala(self, nro_pala):
+        # TODO Implement
+        PLACEHOLDER = 0
+
+    def descompostura(self, camion):
         # TODO Implement
         PLACEHOLDER = 0
 
@@ -78,9 +97,9 @@ class Simulacion:
         # Variables de estado
 
         self.reloj_simulacion = 0
-        self.estado_pala = [0, 0, 0]
-        self.estado_aplastador = 0
-        self.estado_mecanico = 0
+        self.estado_pala = [None, None, None]
+        self.estado_aplastador = None
+        self.estado_mecanico = None
         self.dcrt = 0
 
         self.colas_pala = []
@@ -100,7 +119,6 @@ class Simulacion:
                                  'partida_pala': [],
                                  'arribo_aplastador': INFINITO,
                                  'partida_aplastador:': INFINITO,
-                                 'descompostura': INFINITO,
                                  'fin_de_reparacion': INFINITO}
 
     def __init__(self, duracion_simulacion):
@@ -116,6 +134,7 @@ class Simulacion:
         self.estado_pala = None
         self.estado_aplastador = None
         self.estado_mecanico = None
+        self.ubicacion_mecanico = None
         self.dcrt = None
         self.colas_pala = None
         self.cola_aplastador = None

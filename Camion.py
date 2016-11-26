@@ -1,11 +1,11 @@
 class Camion:
 
-    def __init__(self, tamaño, nro_cola):
+    def __init__(self, capacidad, nro_cola):
         """
-        :param tamaño: int, tamaño de carga del camion en toneladas
+        :param capacidad: int, capacidad de carga del camion en toneladas
         :param nro_cola: int, nro de cola al que corresponde
         """
         self.nro_cola = nro_cola
-        self.tamaño = tamaño
-        self.vino_de = None
+        self.capacidad = capacidad
+        self.accion_despues_descompostura = None
 
