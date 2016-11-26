@@ -18,18 +18,21 @@ class Cola:
         :param camion: Camion
         """
 
-        '''
-        Metodo alternativo para agregar un camion. Si es de 25 lo pongo directamente a lo ultimo, sino, me fijo si
-        ya hay camiones de 50 y de ser asi lo pongo despues del ultimo camion de 50. Si no existe de 50 se pone primero.
 
-        tamanos = [cam.tamaño for cam in self.cola]
-        if camion.tamano == 25
+        '''
+        # Metodo alternativo para agregar un camion. Si es de 25 lo pongo directamente a lo ultimo, sino, me fijo si
+        # ya hay camiones de 50 y de ser asi lo pongo despues del ultimo camion de 50. Si no existe de 50 se pone primero.
+
+        lista_capacidades = [cam.capacidad for cam in self.cola]
+        if camion.capacidad == 25:
             self.cola.append(camion)
-        elif: 50 in tamanos:
-            self.cola.insert(len(tamanos) - tamanos[::-1].index(50), camion)
+        elif 50 in lista_capacidades:
+            self.cola.insert(self._obtener_indice_ultima_ocurrencia(50), camion)
         else:
            self.cola.insert(0,camion)
         '''
+
+
 
         if self.tipo == 'aplastador':
             if camion.capacidad == 50:
@@ -48,14 +51,14 @@ class Cola:
 
     def _obtener_indice_ultima_ocurrencia(self, capacidad):
         """
+        Para que se mas parecido al metodo rindex (que no sirve para listas)
         Busca el indice de la ultima ocurrencia de un camion del tamaño ingresado en la cola
         Si no encuentra el indice devuelve None
 
         :param capacidad: '20tn' o '50tn'
         :return ultimoindice: int
         """
-        ultimoindice = None
-        for i in range(len(self.cola)):
-            if self.cola[i].capacidad == capacidad:
-                ultimoindice = i
-        return ultimoindice
+        lista_capacidades = [cam.capacidad for cam in self.cola]
+        if capacidad in lista_capacidades:
+            return len(lista_capacidades) - lista_capacidades[::-1].index(capacidad)
+        else: return None
