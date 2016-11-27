@@ -67,6 +67,9 @@ class Simulacion:
             self.cola_aplastador.agregar(camion)
 
     def partida_aplastador(self, camion):
+
+        self.total_material_transportado += camion.capacidad
+
         numero_aleatorio = random.random_sample()
 
         if numero_aleatorio < Simulacion.PROB_DESCOMPOSTURA:
@@ -105,13 +108,22 @@ class Simulacion:
             self.colas_pala[camion.nro_pala].agregar(camion)
 
     def descompostura(self, camion):
+
+        self.total_descomposturas += 1
+        camion.tiempo_de_descompostura = self.reloj_simulacion
+
+        # Acumulada de descompuestos en el tiempo
+        self.acrt += (self.reloj_simulacion - self.ultima_medicion_descomposturas) \
+            * (len(self.cola_mecanico) + self.estado_mecanico)
+        self.ultima_medicion_descomposturas = self.reloj_simulacion
+
         if self.estado_mecanico == Simulacion.DESOCUPADO:
             # TODO reveer si la comparacion para ver donde esta el mecanico se puede hacer facil y sin usar comparacion
             # de strings
             # Generar partida del camion, teniendo en cuenta donde se encuentra
             tiempo_de_viaje = 0
-            if ('aplastador' in self.ult_localizacion_mecanico and 'aplastador' not in camion.lugar_descompostura) \
-                    or ('pala' in self.ult_localizacion_mecanico and 'pala' not in camion.lugar_descompostura):
+            if ('aplastador' in self.ult_ubicacion_mecanico and 'aplastador' not in camion.lugar_descompostura) \
+                    or ('pala' in self.ult_ubicacion_mecanico and 'pala' not in camion.lugar_descompostura):
                     tiempo_de_viaje = 1
 
             tiempo = tiempo_de_viaje + camion.tiempo_de_reparacion() + self.reloj_simulacion
@@ -123,17 +135,24 @@ class Simulacion:
 
     def fin_de_reparacion(self, camion):
 
-        self.ult_localizacion_mecanico = camion.lugar_descompostura
+        self.ult_ubicacion_mecanico = camion.lugar_descompostura
+        self.tiempo_ocioso += camion.tiempo_de_descompostura
 
-        if camion.lugar_descompostura == 'partida_pala':
-            camion.lugar_descompostura = None
+        camion.lugar_descompostura = None
+        camion.tiempo_de_descompostura = None
+
+        # Acumulada de descompuestos en el tiempo
+        self.acrt += (self.reloj_simulacion - self.ultima_medicion_descomposturas) \
+            * (len(self.cola_mecanico) + self.estado_mecanico)
+        self.ultima_medicion_descomposturas = self.reloj_simulacion
+
+        if self.ult_ubicacion_mecanico == 'partida_pala':
 
             # Generar arribo al aplastador del camion que parte (tiempo de viaje)
             tiempo = camion.tiempo_de_viaje() + self.reloj_simulacion
             self.lista_de_eventos['arribo_aplastador'].agregar(tiempo, camion)
 
-        elif camion.lugar_descompostura == 'arribo_pala':
-            camion.lugar_descompostura = None
+        elif self.ult_ubicacion_mecanico == 'arribo_pala':
             if self.colas_pala[camion.nro_pala].cola:
 
                 # Generar partida del camion del aplastador
@@ -145,15 +164,13 @@ class Simulacion:
             else:
                 self.colas_pala[camion.nro_pala].agregar(camion)
 
-        elif camion.lugar_descompostura == 'partida_aplstador':
-            camion.lugar_descompostura = None
+        elif self.ult_ubicacion_mecanico == 'partida_aplstador':
 
             # Generar arribo a la pala del camion que parte (tiempo de regreso)
             tiempo = camion.tiempo_de_regreso() + self.reloj_simulacion
             self.lista_de_eventos['arribo_pala'][camion.nro_pala].agregar(tiempo, camion)
 
-        elif camion.lugar_descompostura == 'arribo_aplstador':
-            camion.lugar_descompostura = None
+        elif self.ult_ubicacion_mecanico == 'arribo_aplstador':
             if self.cola_aplastador.cola:
 
                 # Generar partida del camion que sale de la cola nro_pala
@@ -169,8 +186,8 @@ class Simulacion:
 
             # Generar partida del camion, teniendo en cuenta donde se encuentra
             tiempo_de_viaje = 0
-            if ('aplastador' in self.ult_localizacion_mecanico and 'aplastador' not in camion_cola.lugar_descompostura) \
-                    or ('pala' in self.ult_localizacion_mecanico and 'pala' not in camion_cola.lugar_descompostura):
+            if ('aplastador' in self.ult_ubicacion_mecanico and 'aplastador' not in camion_cola.lugar_descompostura) \
+                    or ('pala' in self.ult_ubicacion_mecanico and 'pala' not in camion_cola.lugar_descompostura):
                 tiempo_de_viaje = 1
 
             tiempo = tiempo_de_viaje + camion.tiempo_de_reparacion() + self.reloj_simulacion
@@ -212,6 +229,7 @@ class Simulacion:
         self.tiempo_ocioso = 0
         self.total_material_transportado = 0
         self.total_descomposturas = 0
+        self.acrt = 0
 
         # Variables de estado
 
@@ -219,7 +237,8 @@ class Simulacion:
         self.estado_pala = [Simulacion.DESOCUPADO, Simulacion.DESOCUPADO, Simulacion.DESOCUPADO]
         self.estado_aplastador = Simulacion.DESOCUPADO
         self.estado_mecanico = Simulacion.DESOCUPADO
-        self.ult_localizacion_mecanico = 'pala'
+        self.ult_ubicacion_mecanico = 'pala'
+        self.ultima_medicion_descomposturas = 0
         self.dcrt = 0
 
         self.colas_pala = []
@@ -263,14 +282,15 @@ class Simulacion:
         self.tiempo_ocioso = None
         self.total_material_transportado = None
         self.total_descomposturas = None
+        self.acrt = None
 
         # Variables de estado
         self.reloj_simulacion = None
         self.estado_pala = None
         self.estado_aplastador = None
         self.estado_mecanico = None
-        self.ult_localizacion_mecanico = None
-        self.ubicacion_mecanico = None
+        self.ult_ubicacion_mecanico = None
+        self.ultima_medicion_descomposturas = None
         self.dcrt = None
         self.colas_pala = None
         self.cola_aplastador = None

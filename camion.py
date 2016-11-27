@@ -10,6 +10,7 @@ class Camion:
         """
         self.nro_pala = nro_pala
         self.capacidad = capacidad
+        self.tiempo_de_descompostura = None
         self.lugar_descompostura = None
         self.idn = idn
 
