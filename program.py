@@ -14,7 +14,8 @@ class Simulacion:
 
     def start(self, tiempo_simulacion=200):
         self.inicializacion()
-        for i in range(tiempo_simulacion):
+        while self.reloj_simulacion < tiempo_simulacion:
+
             evento, camion = self.tiempos()
 
             # Ejecutar la rutina de evento
