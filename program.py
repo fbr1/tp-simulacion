@@ -12,9 +12,9 @@ class Simulacion:
     OCUPADO = 1
     DESOCUPADO = 0
 
-    def start(self, tiempo_simulacion=200):
-        self.inicializacion()
-        while self.reloj_simulacion < tiempo_simulacion:
+    def start(self, duracion_simulacion=200):
+        self.inicializacion(duracion_simulacion)
+        while self.reloj_simulacion < self.duracion_simulacion:
 
             evento, camion = self.tiempos()
 
@@ -197,8 +197,10 @@ class Simulacion:
             self.estado_mecanico = Simulacion.DESOCUPADO
 
     def reportes(self):
-        # TODO Implement
-        PLACEHOLDER = 0
+        print('Tiempo ocioso promedio por camion: ', self.tiempo_ocioso / 9)
+        print('Cantidad de mineral transportado promedio por camion: ', self.total_material_transportado / 9)
+        print('Cantidad de descomposturas promedio por camion', self.total_descomposturas / 9)
+        print('Numero promedio en el tiempo de camiones en reparacion: ', self.acrt / self.reloj_simulacion)
 
     def tiempos(self):
         # TODO refactorizar codigo repetido
@@ -223,7 +225,9 @@ class Simulacion:
 
         return evento_mas_reciente.nombre_funcion, tiempo_mas_reciente.camion
 
-    def inicializacion(self):
+    def inicializacion(self, duracion_simulacion):
+
+        self.duracion_simulacion = duracion_simulacion
 
         # Contadores Estadisticos
         self.tiempo_ocioso = 0
@@ -275,8 +279,8 @@ class Simulacion:
                                  'partida_aplastador': Evento('partida_aplastador'),
                                  'fin_de_reparacion': Evento('fin_de_reparacion')}
 
-    def __init__(self, duracion_simulacion):
-        self.duracion_simulacion = duracion_simulacion
+    def __init__(self):
+        self.duracion_simulacion = None
 
         # Contadores estadisticos
         self.tiempo_ocioso = None
