@@ -1,6 +1,3 @@
-import Camion
-
-
 class Cola:
 
     def __init__(self, tipo):
@@ -36,7 +33,7 @@ class Cola:
     def _obtener_indice_ultima_ocurrencia(self, capacidad):
         """
         Para que se mas parecido al metodo rindex (que no sirve para listas)
-        Busca el indice de la ultima ocurrencia de un camion del tamaño ingresado en la cola
+        Busca el indice de la ultima ocurrencia de un camion de la capacidad ingresada en la cola
         Si no encuentra el indice devuelve None
 
         :param capacidad: '20tn' o '50tn'
