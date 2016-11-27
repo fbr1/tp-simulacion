@@ -109,9 +109,8 @@ class Simulacion:
             # de strings
             # Generar partida del camion, teniendo en cuenta donde se encuentra
             tiempo_de_viaje = 0
-            if 'aplastador' in self.ult_localizacion_mecanico and 'aplastador' not in camion.lugar_descompostura:
-                    tiempo_de_viaje = 1
-            elif 'pala' in self.ult_localizacion_mecanico and 'pala' not in camion.lugar_descompostura:
+            if ('aplastador' in self.ult_localizacion_mecanico and 'aplastador' not in camion.lugar_descompostura) \
+                    or ('pala' in self.ult_localizacion_mecanico and 'pala' not in camion.lugar_descompostura):
                     tiempo_de_viaje = 1
 
             tiempo = tiempo_de_viaje + camion.tiempo_de_reparacion() + self.reloj_simulacion
@@ -167,7 +166,15 @@ class Simulacion:
         if self.cola_mecanico.cola:
             camion_cola = self.cola_mecanico.cola.pop(0)
 
-            # TODO generar partida del camion, tener en cuenta donde se encuentra, Reveer
+            # Generar partida del camion, teniendo en cuenta donde se encuentra
+            tiempo_de_viaje = 0
+            if ('aplastador' in self.ult_localizacion_mecanico and 'aplastador' not in camion_cola.lugar_descompostura) \
+                    or ('pala' in self.ult_localizacion_mecanico and 'pala' not in camion_cola.lugar_descompostura):
+                tiempo_de_viaje = 1
+
+            tiempo = tiempo_de_viaje + camion.tiempo_de_reparacion() + self.reloj_simulacion
+            self.lista_de_eventos["fin_de_reparacion"].agregar(tiempo, camion)
+
         else:
             self.estado_mecanico = Simulacion.DESOCUPADO
 
