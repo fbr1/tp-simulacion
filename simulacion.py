@@ -27,7 +27,7 @@ class Simulacion:
         numero_aleatorio = random.random_sample()
 
         if numero_aleatorio < Simulacion.PROB_DESCOMPOSTURA:
-            camion.lugar_descompostura = 'partida_aplastador'
+            camion.lugar_descompostura = 'partida_pala'
             self.descompostura(camion)
         else:
             # Generar arribo al aplastador del camion que parte (tiempo de viaje)
@@ -43,11 +43,11 @@ class Simulacion:
 
             # Generar la partida (tiempo de carga) del camión que sale de la cola de la pala i
             tiempo = camion_cola.tiempo_de_carga() + self.reloj_simulacion
-            self.lista_de_eventos['partida_pala'].agregar(tiempo, camion)
+            self.lista_de_eventos['partida_pala'][camion.nro_pala].agregar(tiempo, camion_cola)
 
-            self.estado_pala = Simulacion.OCUPADO
+            self.estado_pala[camion.nro_pala] = Simulacion.OCUPADO
         else:
-            self.estado_pala = Simulacion.DESOCUPADO
+            self.estado_pala[camion.nro_pala] = Simulacion.DESOCUPADO
 
     def arribo_aplastador(self, camion):
         numero_aleatorio = random.random_sample()
@@ -98,7 +98,7 @@ class Simulacion:
             camion.lugar_descompostura = 'arribo_pala'
             self.descompostura(camion)
 
-        elif self.estado_pala == Simulacion.DESOCUPADO:
+        elif self.estado_pala[camion.nro_pala] == Simulacion.DESOCUPADO:
             # Generar partida del camion que sale de la cola nro_pala
             tiempo = camion.tiempo_de_carga() + self.reloj_simulacion
             self.lista_de_eventos['partida_pala'][camion.nro_pala].agregar(tiempo, camion)
@@ -114,7 +114,7 @@ class Simulacion:
 
         # Acumulada de descompuestos en el tiempo
         self.acrt += (self.reloj_simulacion - self.ultima_medicion_descomposturas) \
-            * (len(self.cola_mecanico) + self.estado_mecanico)
+            * (len(self.cola_mecanico.cola) + self.estado_mecanico)
         self.ultima_medicion_descomposturas = self.reloj_simulacion
 
         if self.estado_mecanico == Simulacion.DESOCUPADO:
@@ -143,7 +143,7 @@ class Simulacion:
 
         # Acumulada de descompuestos en el tiempo
         self.acrt += (self.reloj_simulacion - self.ultima_medicion_descomposturas) \
-            * (len(self.cola_mecanico) + self.estado_mecanico)
+            * (len(self.cola_mecanico.cola) + self.estado_mecanico)
         self.ultima_medicion_descomposturas = self.reloj_simulacion
 
         if self.ult_ubicacion_mecanico == 'partida_pala':
@@ -155,27 +155,27 @@ class Simulacion:
         elif self.ult_ubicacion_mecanico == 'arribo_pala':
             if self.colas_pala[camion.nro_pala].cola:
 
-                # Generar partida del camion del aplastador
-                tiempo = camion.tiempo_de_descarga() + self.reloj_simulacion
-                self.lista_de_eventos['partida_aplastador'].agregar(tiempo, camion)
+                # Generar partida del camion que sale de la cola nro_pala
+                tiempo = camion.tiempo_de_carga() + self.reloj_simulacion
+                self.lista_de_eventos['partida_pala'][camion.nro_pala].agregar(tiempo, camion)
 
                 self.estado_pala[camion.nro_pala] = Simulacion.OCUPADO
 
             else:
                 self.colas_pala[camion.nro_pala].agregar(camion)
 
-        elif self.ult_ubicacion_mecanico == 'partida_aplstador':
+        elif self.ult_ubicacion_mecanico == 'partida_aplastador':
 
             # Generar arribo a la pala del camion que parte (tiempo de regreso)
             tiempo = camion.tiempo_de_regreso() + self.reloj_simulacion
             self.lista_de_eventos['arribo_pala'][camion.nro_pala].agregar(tiempo, camion)
 
-        elif self.ult_ubicacion_mecanico == 'arribo_aplstador':
+        elif self.ult_ubicacion_mecanico == 'arribo_aplastador':
             if self.cola_aplastador.cola:
 
-                # Generar partida del camion que sale de la cola nro_pala
-                tiempo = camion.tiempo_de_carga() + self.reloj_simulacion
-                self.lista_de_eventos['partida_pala'][camion.nro_pala].agregar(tiempo, camion)
+                # Generar partida del camion del aplastador
+                tiempo = camion.tiempo_de_descarga() + self.reloj_simulacion
+                self.lista_de_eventos['partida_aplastador'].agregar(tiempo, camion)
 
                 self.estado_aplastador = Simulacion.OCUPADO
             else:
@@ -191,7 +191,7 @@ class Simulacion:
                 tiempo_de_viaje = 1
 
             tiempo = tiempo_de_viaje + camion.tiempo_de_reparacion() + self.reloj_simulacion
-            self.lista_de_eventos["fin_de_reparacion"].agregar(tiempo, camion)
+            self.lista_de_eventos["fin_de_reparacion"].agregar(tiempo, camion_cola)
 
         else:
             self.estado_mecanico = Simulacion.DESOCUPADO
@@ -257,6 +257,16 @@ class Simulacion:
 
         # Lista de eventos
 
+        self.lista_de_eventos = {'arribo_pala': [Evento('arribo_pala'),
+                                                 Evento('arribo_pala'),
+                                                 Evento('arribo_pala')],
+                                 'partida_pala': [Evento('partida_pala'),
+                                                  Evento('partida_pala'),
+                                                  Evento('partida_pala')],
+                                 'arribo_aplastador': Evento('arribo_aplastador'),
+                                 'partida_aplastador': Evento('partida_aplastador'),
+                                 'fin_de_reparacion': Evento('fin_de_reparacion')}
+
         # Generar evento desencadenador
         # Deshabilitar temporalmente la probabilidad de descompostura
 
@@ -268,16 +278,6 @@ class Simulacion:
 
         # Devolver el valor original
         Simulacion.PROB_DESCOMPOSTURA = temp_descompostura
-
-        self.lista_de_eventos = {'arribo_pala': [Evento('arribo_pala'),
-                                                 Evento('arribo_pala'),
-                                                 Evento('arribo_pala')],
-                                 'partida_pala': [Evento('partida_pala'),
-                                                  Evento('partida_pala'),
-                                                  Evento('partida_pala')],
-                                 'arribo_aplastador': Evento('arribo_aplastador'),
-                                 'partida_aplastador': Evento('partida_aplastador'),
-                                 'fin_de_reparacion': Evento('fin_de_reparacion')}
 
     def __init__(self):
         self.duracion_simulacion = None
