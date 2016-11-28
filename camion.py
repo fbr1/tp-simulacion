@@ -39,6 +39,9 @@ class Camion:
             return 2
 
     def tiempo_de_reparacion(self):
+        return random.uniform(1, 6)
+
+    def tiempo_de_mantenimiento(self):
         while True:
             tiempo = random.normal(1, 1.5)
             if tiempo > 0:
