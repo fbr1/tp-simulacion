@@ -262,6 +262,7 @@ class SimulacionAlt:
             cola_pala = Cola('pala')
             cola_pala.agregar(Camion(50, i))
             cola_pala.agregar(Camion(20, i))
+            cola_pala.agregar(Camion(20, i))
             self.colas_pala.append(cola_pala)
 
         self.cola_aplastador = Cola('aplastador')
@@ -283,17 +284,19 @@ class SimulacionAlt:
                                                        Evento('fin_de_inspeccion'),
                                                        Evento('fin_de_inspeccion')]}
 
-        # Generar evento desencadenador
-        # Deshabilitar temporalmente la probabilidad de descompostura
+        self.generar_evento_desencadenador()
 
-        temp_descompostura = SimulacionAlt.PROB_DESCOMPOSTURA
-        SimulacionAlt.PROB_DESCOMPOSTURA = -1
-
+    def generar_evento_desencadenador(self):
         for i in range(3):
-            self.arribo_pala(Camion(20, i))
+            cola_pala = self.colas_pala[i]
+            # Quitar al primer camion de la cola i
+            camion_cola = cola_pala.cola.pop(0)
 
-        # Devolver el valor original
-        SimulacionAlt.PROB_DESCOMPOSTURA = temp_descompostura
+            # Generar la partida (tiempo de carga) del camion que sale de la cola de la pala i
+            tiempo = camion_cola.tiempo_de_carga() + self.reloj_simulacion
+            self.lista_de_eventos['partida_pala'][i].agregar(tiempo, camion_cola)
+
+            self.estado_pala[i] = SimulacionAlt.OCUPADO
 
     def __init__(self):
         self.duracion_simulacion = None
