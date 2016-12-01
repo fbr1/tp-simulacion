@@ -166,12 +166,10 @@ class SimulacionAlt:
         self.ultima_medicion_descomposturas = self.reloj_simulacion
 
         if self.ult_ubicacion_mecanico == 'arribo_pala':
-            if self.colas_pala[camion.nro_pala].cola:
-
+            if self.estado_pala[camion.nro_pala] == SimulacionAlt.DESOCUPADO:
                 # Generar partida del camion que sale de la cola nro_pala
                 tiempo = camion.tiempo_de_carga() + self.reloj_simulacion
                 self.lista_de_eventos['partida_pala'][camion.nro_pala].agregar(tiempo, camion)
-
                 self.estado_pala[camion.nro_pala] = SimulacionAlt.OCUPADO
 
             else:
@@ -184,13 +182,13 @@ class SimulacionAlt:
             self.lista_de_eventos['arribo_pala'][camion.nro_pala].agregar(tiempo, camion)
 
         elif self.ult_ubicacion_mecanico == 'arribo_aplastador':
-            if self.cola_aplastador.cola:
+            if self.estado_aplastador == SimulacionAlt.DESOCUPADO:
 
                 # Generar partida del camion del aplastador
                 tiempo = camion.tiempo_de_descarga() + self.reloj_simulacion
                 self.lista_de_eventos['partida_aplastador'].agregar(tiempo, camion)
-
                 self.estado_aplastador = SimulacionAlt.OCUPADO
+
             else:
                 self.cola_aplastador.agregar(camion)
 
