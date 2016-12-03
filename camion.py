@@ -13,6 +13,7 @@ class Camion:
         self.tiempo_de_descompostura = None
         self.tiempo_de_inspeccion = None
         self.lugar_descompostura = None
+        self.realizar_inspeccion = True
         self.idn = idn
 
     def tiempo_de_carga(self):
