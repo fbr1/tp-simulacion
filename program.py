@@ -4,21 +4,29 @@ from scipy.stats import t
 import numpy
 import csv
 import math
+import multiprocessing
+from functools import partial
 
 
 def main():
     for k in range(2):
-        reportes = []
+        pool = multiprocessing.Pool(multiprocessing.cpu_count())
+        func = partial(worker, k)
 
-        i = 1
-        while i < 101:
-            numpy.random.seed(i)
-            sim = Simulacion() if k == 0 else SimulacionAlt()
-            sim.start(200)
-            reportes.append((sim.reportes()))
-            i += 1
+        reportes = pool.imap_unordered(func, range(1333))
+
+        pool.close()
+        pool.join()
 
         save_to_file(reportes, 'modelo_original.csv' if k == 0 else 'modelo_alternativo.csv')
+
+
+def worker(k, i):
+    m = i + 1
+    numpy.random.seed(m)
+    sim = Simulacion() if k == 0 else SimulacionAlt()
+    sim.start(200)
+    return sim.reportes()
 
 
 def save_to_file(reportes, outputfilepath):
@@ -98,4 +106,4 @@ def get_n():
         n += 1
 
 if __name__ == "__main__":
-    get_n()
+    main()
