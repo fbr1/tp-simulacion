@@ -1,5 +1,5 @@
 from simulacion import Simulacion
-from simulacionAlt import SimulacionAlt
+from altmod import sim2mec, simInsp, simUnaCola, simUnaCola2Mec, simUnaColaInsp
 from scipy.stats import t
 import numpy
 import csv
@@ -9,7 +9,7 @@ from functools import partial
 
 
 def main():
-    for k in range(2):
+    for k in range(6):
         pool = multiprocessing.Pool(multiprocessing.cpu_count())
         func = partial(worker, k)
 
@@ -18,13 +18,36 @@ def main():
         pool.close()
         pool.join()
 
-        save_to_file(reportes, 'modelo_original.csv' if k == 0 else 'modelo_alternativo.csv')
+        if k == 0:
+            path = 'modelo_original.csv'
+        elif k == 1:
+            path = 'modelo_UnaCola.csv'
+        elif k == 2:
+            path = 'modelo_Insp.csv'
+        elif k == 3:
+            path = 'modelo_UnaColaInsp.csv'
+        elif k == 4:
+            path = 'modelo_2Mec.csv'
+        else:
+            path = 'modelo_UnaCola2Mec.csv'
+        save_to_file(reportes, path)
 
 
 def worker(k, i):
     m = i + 1
     numpy.random.seed(m)
-    sim = Simulacion() if k == 0 else SimulacionAlt()
+    if k == 0:
+        sim = Simulacion()
+    elif k == 1:
+        sim = simUnaCola.SimulacionUnaCola()
+    elif k == 2:
+        sim = simInsp.SimulacionInsp()
+    elif k == 3:
+        sim = simUnaColaInsp.SimulacionUnaColaInsp()
+    elif k == 4:
+        sim = sim2mec.Simulacion2mec()
+    else:
+        sim = simUnaCola2Mec.SimulacionUnaCola2mec()
     sim.start(200)
     return sim.reportes()
 
@@ -47,10 +70,10 @@ def save_to_file(reportes, outputfilepath):
 
             writer.writerow([re[0], re[1], re[2], re[3]])
 
-        print('ocioso: ' , ocioso /100)
-        print('material: ' , material/100)
-        print('descomposturas: ' , descomposturas/100)
-        print('descompuestos_tiempo: ' , descompuestos_tiempo/100)
+        print('ocioso: ', ocioso/1333)
+        print('material: ', material/1333)
+        print('descomposturas: ', descomposturas/1333)
+        print('descompuestos_tiempo: ', descompuestos_tiempo/1333)
 
 
 def get_n():

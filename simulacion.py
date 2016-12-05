@@ -14,6 +14,7 @@ class Simulacion:
 
     def start(self, duracion_simulacion=200):
         self.inicializacion(duracion_simulacion)
+        self.generar_evento_desencadenador()
         while self.reloj_simulacion < self.duracion_simulacion:
 
             evento, camion = self.tiempos()
@@ -260,8 +261,6 @@ class Simulacion:
                                  'arribo_aplastador': Evento('arribo_aplastador'),
                                  'partida_aplastador': Evento('partida_aplastador'),
                                  'fin_de_reparacion': Evento('fin_de_reparacion')}
-
-        self.generar_evento_desencadenador()
 
     def generar_evento_desencadenador(self):
         for i in range(3):
