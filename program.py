@@ -76,6 +76,95 @@ def save_to_file(reportes, outputfilepath):
         print('descompuestos_tiempo: ', descompuestos_tiempo/1333)
 
 
+def ranking_selection():
+
+    n0 = 40
+    k = 6
+    indiferencia = [1, 2, 0.10, 0.05]
+    h1 = 3.260
+
+    for m in range(4):
+        reportes = []
+        medias = []
+        medias2 = []
+        media_sample = []
+        varianzas = []
+        N = []
+        W = []
+
+        for i in range(k):
+            if i == 0:
+                sim = Simulacion()
+            elif i == 1:
+                sim = simUnaCola.SimulacionUnaCola()
+            elif i == 2:
+                sim = simInsp.SimulacionInsp()
+            elif i == 3:
+                sim = simUnaColaInsp.SimulacionUnaColaInsp()
+            elif i == 4:
+                sim = sim2mec.Simulacion2mec()
+            else:
+                sim = simUnaCola2Mec.SimulacionUnaCola2mec()
+
+            # Primera Etapa
+            j = 1
+            reportes_parciales = []
+            while j < n0 + 1:
+                numpy.random.seed(j)
+                sim.start(200)
+                reportes_parciales.append(sim.reportes()[m])
+                j += 1
+
+            reportes.append(reportes_parciales)
+
+            # Media 1
+            suma = 0
+            for value in reportes_parciales:
+                suma += value
+            medias.append(suma / n0)
+
+            # Varianza
+            suma = 0
+            for value in reportes_parciales:
+                suma += math.pow(value - medias[i], 2)
+
+            varianzas.append(suma / (n0-1))
+
+            temp_calc = math.pow(h1, 2)*varianzas[i]/math.pow(indiferencia[m], 2)
+
+            temp_calc = int(math.ceil(temp_calc))
+
+            if n0 + 1 > temp_calc:
+                N.append(n0 + 1)
+            else:
+                N.append(temp_calc)
+
+            # Segunda Etapa
+            j = n0 + 1
+            while j < N[i] + 1:
+                numpy.random.seed(j)
+                sim.start(200)
+                reportes_parciales.append(sim.reportes()[m])
+                j += 1
+
+            # Media 2
+            suma = 0
+            for value in reportes_parciales[n0:N[i]]:
+                suma += value
+            medias2.append(suma / (N[i] - n0))
+
+            # Pesos
+            uno = n0 / N[i]
+            dos = N[i] / n0
+            tres = (N[i] - n0) * math.pow(indiferencia[m], 2)/(math.pow(h1, 2)*varianzas[i])
+
+            W.append(uno * (1 + math.sqrt(1 - dos*(1 - tres))))
+
+            media_sample.append(W[i]*medias[i] + (1-W[i])*medias2[i])
+
+        # Agregar breakpoint aca
+
+
 def get_n():
     """
     Obtener el n* necesario para que las variables tengan en conjunto un error de 0.10
