@@ -37,8 +37,6 @@ def main():
         print([2, 4, 1, 3])
         return False
 
-    # TODO test cola mecanico
-
     return True
 
 if __name__ == "__main__":

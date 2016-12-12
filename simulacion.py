@@ -11,6 +11,7 @@ class Simulacion:
     PROB_DESCOMPOSTURA = 0.1
     OCUPADO = 1
     DESOCUPADO = 0
+    MES = 720
 
     def start(self, duracion_simulacion=200):
         self.inicializacion(duracion_simulacion)
@@ -193,8 +194,8 @@ class Simulacion:
             self.estado_mecanico = Simulacion.DESOCUPADO
 
     def reportes(self):
-        return self.tiempo_ocioso / 9, self.total_material_transportado / 9, \
-            self.total_descomposturas / 9, self.acrt / self.reloj_simulacion
+        return self.tiempo_ocioso / 9, self.total_material_transportado, \
+            self.total_descomposturas, self.acrt / self.reloj_simulacion
 
     def tiempos(self):
         # TODO refactorizar codigo repetido
@@ -214,7 +215,20 @@ class Simulacion:
                         evento_mas_reciente = value
                         tiempo_mas_reciente = value.tiempos[0]
 
+        # Acumular variables de respuesta pasado un mes
+        intervalo = (len(self.reportes_por_mes) + 1) * Simulacion.MES
+
+        if self.reloj_simulacion and self.reloj_simulacion / intervalo >= 1:
+
+            self.reportes_por_mes.append(self.reportes())
+            # Contadores Estadisticos
+            self.tiempo_ocioso = 0
+            self.total_material_transportado = 0
+            self.total_descomposturas = 0
+            self.acrt = 0
+
         self.reloj_simulacion = tiempo_mas_reciente.tiempo
+
         evento_mas_reciente.popleft()
 
         return evento_mas_reciente.nombre_funcion, tiempo_mas_reciente.camion
@@ -295,3 +309,4 @@ class Simulacion:
         self.cola_aplastador = None
         self.cola_mecanico = None
         self.lista_de_eventos = None
+        self.reportes_por_mes = []
